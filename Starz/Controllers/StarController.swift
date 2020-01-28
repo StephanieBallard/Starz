@@ -16,6 +16,10 @@ import Foundation
 //Source of truth for the app
 class StarController {
     
+    init() {
+        loadFromPersistentStore()
+    }
+    
     private(set) var stars: [Star] = []
     
     private var persistentFileURL: URL? {
@@ -53,6 +57,7 @@ class StarController {
     
     func saveToPersistantStore() {
         guard let url = persistentFileURL else { return }
+        //star -> Data -> Plist
         
         do {
             let encoder = PropertyListEncoder()
@@ -63,6 +68,23 @@ class StarController {
             print("Error saving stars data: \(error)")
         }
         
+    }
+    
+    func loadFromPersistentStore() {
+        
+        //Data in Plist -> Star objects
+        
+        let fileManager = FileManager.default
+        guard let url = persistentFileURL,
+            fileManager.fileExists(atPath: url.path) else { return }
+        
+        do {
+         let data = try Data(contentsOf: url)
+            let decoder = PropertyListDecoder()
+            stars = try decoder.decode([Star].self, from: data)
+        } catch {
+            print("Error loading stars data: \(error)")
+        }
     }
     
 }
